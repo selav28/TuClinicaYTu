@@ -21,20 +21,32 @@ import com.google.firebase.ktx.Firebase
 
 class LoginActivity : AppCompatActivity() {
 
+    // Button for Google Sign-In
     private lateinit var googleSignInButton: MaterialButton
+    // Button for Email Sign-In
     private lateinit var emailSignInButton: MaterialButton
+    // Button for Anonymous Sign-In
     private lateinit var anonymousSignInButton: MaterialButton
+    // TextView to go to the Register screen
     private lateinit var goToRegisterTextView: TextView
+    // Firebase Authentication instance
     private lateinit var auth: FirebaseAuth
+    // Google Sign-In client
     private lateinit var googleSignInClient: GoogleSignInClient
+    // Tag for logs
     private val TAG = "LoginActivity"
+    // Launcher for the Google Sign-In activity
     private lateinit var launcher: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        // Initialize Firebase Auth
+        // Center the title in the ActionBar
+        supportActionBar?.displayOptions = androidx.appcompat.app.ActionBar.DISPLAY_SHOW_CUSTOM
+        supportActionBar?.setCustomView(R.layout.center_title_actionbar)
+
+        // Initialize Firebase Authentication
         auth = Firebase.auth
 
         // Configure Google Sign In
@@ -45,36 +57,39 @@ class LoginActivity : AppCompatActivity() {
 
         googleSignInClient = GoogleSignIn.getClient(this, gso)
 
-        // Initialize Google Sign-In button
+        // Initialize the Google Sign-In button
         googleSignInButton = findViewById(R.id.loginButton)
         googleSignInButton.setOnClickListener {
-            signInWithGoogle()
+            signInWithGoogle() // Sign in with Google
         }
 
-        // Initialize Email Sign-In button
+        // Initialize the Email Sign-In button
         emailSignInButton = findViewById(R.id.emailLoginButton)
         emailSignInButton.setOnClickListener {
-            signInWithEmail()
+            signInWithEmail() // Sign in with Email
         }
 
-        // Initialize Anonymous Sign-In button
+        // Initialize the Anonymous Sign-In button
         anonymousSignInButton = findViewById(R.id.anonymousLoginButton)
         anonymousSignInButton.setOnClickListener {
-            signInAnonymously()
+            signInAnonymously() // Sign in Anonymously
         }
 
-        // Initialize TextView to go to RegisterActivity
+        // Initialize the TextView to go to the Register activity
         goToRegisterTextView = findViewById(R.id.registerTextView)
         goToRegisterTextView.setOnClickListener {
-            goToRegister()
+            goToRegister() // Go to the Register activity
         }
+        // Configure the launcher for the Google Sign-In activity
         launcher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
         ) { result ->
             if (result.resultCode == RESULT_OK) {
+                // If the result is OK, get the Google account
                 val task: Task<GoogleSignInAccount> = GoogleSignIn.getSignedInAccountFromIntent(result.data ?: Intent())
-                handleSignInResult(task)
+                handleSignInResult(task) // Handle the Sign-In result
             } else {
+                // If there is an error, show a message in the log
                 Log.e(TAG, "Error: ${result.resultCode}")
             }
         }
@@ -82,62 +97,67 @@ class LoginActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        // Check if user is signed in (non-null) and update UI accordingly.
+        // Check if the user is already signed in
         val currentUser = auth.currentUser
-        updateUI(currentUser)
+        updateUI(currentUser) // Update the user interface
     }
 
+    // Update the user interface according to the user's status
     private fun updateUI(user: com.google.firebase.auth.FirebaseUser?) {
         if (user != null) {
-            // Navigate to HomeActivity
+            // If the user is signed in, navigate to HomeActivity
             val intent = Intent(this, HomeActivity::class.java)
             startActivity(intent)
             finish() // Close LoginActivity
         }
     }
 
+    // Sign in with Google
     private fun signInWithGoogle() {
         val signInIntent = googleSignInClient.signInIntent
-        launcher.launch(signInIntent)
+        launcher.launch(signInIntent) // Launch the Google Sign-In activity
     }
 
+    // Handle the result of the Google Sign-In
     private fun handleSignInResult(completedTask: Task<GoogleSignInAccount>) {
         try {
             val account = completedTask.getResult(ApiException::class.java)
 
-            // Signed in successfully, show authenticated UI.
+            // If the sign-in is successful, show the authenticated user interface
             Log.d(TAG, "Google sign in success")
-            firebaseAuthWithGoogle(account.idToken!!)
+            firebaseAuthWithGoogle(account.idToken!!) // Authenticate with Firebase
         } catch (e: ApiException) {
-            // The ApiException status code indicates the detailed failure reason.
-            // Please refer to the GoogleSignInStatusCodes class reference for more information.
+            // If there is an error, show a message in the log
             Log.w(TAG, "signInResult:failed code=" + e.statusCode)
         }
     }
 
+    // Authenticate with Firebase using the Google token
     private fun firebaseAuthWithGoogle(idToken: String) {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
         auth.signInWithCredential(credential)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
-                    // Sign in success, update UI with the signed-in user's information
+                    // If the sign-in is successful, update the user interface
                     Log.d(TAG, "signInWithCredential:success")
                     val user = auth.currentUser
-                    updateUI(user)
+                    updateUI(user) // Update the user interface
                 } else {
-                    // If sign in fails, display a message to the user.
+                    // If there is an error, show a message in the log
                     Log.w(TAG, "signInWithCredential:failure", task.exception)
-                    updateUI(null)
+                    updateUI(null) // Update the user interface
                 }
             }
     }
 
+    // Sign in with Email
     private fun signInWithEmail() {
         // Start EmailLoginActivity
         val intent = Intent(this, EmailLoginActivity::class.java)
         startActivity(intent)
     }
 
+    // Sign in Anonymously
     private fun signInAnonymously() {
         // Logic for anonymous sign-in
         Log.d(TAG, "Anonymous sign-in")
@@ -147,6 +167,7 @@ class LoginActivity : AppCompatActivity() {
         finish() // Close LoginActivity
     }
 
+    // Go to the Register activity
     private fun goToRegister() {
         // Start RegisterActivity
         val intent = Intent(this, RegisterActivity::class.java)

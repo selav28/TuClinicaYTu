@@ -13,4 +13,10 @@
     <string name="text_iniciar_sesion">Iniciar Sesión</string>
     <string name="text_bienvenida">¡Bienvenido a TuClinicaYTu!</string>
     <string name="text_cerrar_sesion">Cerrar Sesión</string>
+    <string name="email_hint">E-mail</string>
+    <string name="password_hint">Contraseña</string>
+    <string name="login_button">Iniciar Sesión</string>
+    <string name="register_button">Crear cuenta</string>
+    <string name="name_hint">Nombre</string>
+    <string name="confirm_password_hint">Confirma la contraseña</string>
 </resources>
