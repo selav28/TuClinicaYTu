@@ -3,11 +3,11 @@ package com.example.tuclinicaytu
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.widget.Button
-import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.ui.semantics.text
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -15,9 +15,9 @@ import com.google.firebase.ktx.Firebase
 class EmailLoginActivity : AppCompatActivity() {
 
     private lateinit var auth: FirebaseAuth
-    private lateinit var emailEditText: EditText
-    private lateinit var passwordEditText: EditText
-    private lateinit var loginButton: Button
+    private lateinit var emailEditText: TextInputEditText
+    private lateinit var passwordEditText: TextInputEditText
+    private lateinit var loginButton: MaterialButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

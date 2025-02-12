@@ -46,25 +46,25 @@ class LoginActivity : AppCompatActivity() {
         googleSignInClient = GoogleSignIn.getClient(this, gso)
 
         // Initialize Google Sign-In button
-        googleSignInButton = findViewById(R.id.sign_in_with_google_button)
+        googleSignInButton = findViewById(R.id.loginButton)
         googleSignInButton.setOnClickListener {
             signInWithGoogle()
         }
 
         // Initialize Email Sign-In button
-        emailSignInButton = findViewById(R.id.sign_in_with_email_button)
+        emailSignInButton = findViewById(R.id.emailLoginButton)
         emailSignInButton.setOnClickListener {
             signInWithEmail()
         }
 
         // Initialize Anonymous Sign-In button
-        anonymousSignInButton = findViewById(R.id.sign_in_anonymously_button)
+        anonymousSignInButton = findViewById(R.id.anonymousLoginButton)
         anonymousSignInButton.setOnClickListener {
             signInAnonymously()
         }
 
         // Initialize TextView to go to RegisterActivity
-        goToRegisterTextView = findViewById(R.id.goToRegisterTextView)
+        goToRegisterTextView = findViewById(R.id.registerTextView)
         goToRegisterTextView.setOnClickListener {
             goToRegister()
         }
