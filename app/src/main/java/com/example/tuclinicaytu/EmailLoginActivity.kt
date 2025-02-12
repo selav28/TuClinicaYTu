@@ -35,47 +35,45 @@ class EmailLoginActivity : AppCompatActivity() {
         loginButton = findViewById(R.id.loginButton)
 
         loginButton.setOnClickListener {
-            signIn()
-        }
-    }
+            val email = emailEditText.text.toString()
+            val password = passwordEditText.text.toString()
 
-    private fun signIn() {
-        val email = emailEditText.text.toString()
-        val password = passwordEditText.text.toString()
-
-        if (email.isEmpty() || password.isEmpty()) {
-            Toast.makeText(this, "Por favor, rellena todos los campos", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        auth.signInWithEmailAndPassword(email, password)
-            .addOnCompleteListener(this) { task ->
-                if (task.isSuccessful) {
-                    // Sign in success, update UI with the signed-in user's information
-                    Log.d("EmailLoginActivity", "signInWithEmail:success")
-                    val user = auth.currentUser
-                    //Ahora que el usuario está autenticado, buscamos el usuario en Firestore
-                    findUserByEmail(email)
-                } else {
-                    // If sign in fails, display a message to the user.
-                    Log.w("EmailLoginActivity", "signInWithEmail:failure", task.exception)
-                    Toast.makeText(baseContext, "Authentication failed.",
-                        Toast.LENGTH_SHORT).show()
-                }
+            if (email.isEmpty() || password.isEmpty()) {
+                Toast.makeText(this, "Por favor, rellena todos los campos", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
             }
+            auth.signInAnonymously()
+                .addOnCompleteListener(this) { task ->
+                    if (task.isSuccessful) {
+                        // Sign in success, continue with checking user provider
+                        Log.d("EmailLoginActivity", "signInAnonymously:success")
+                        checkUserProviderAndSignIn(email, password)
+                    } else {
+                        // If sign in fails, display a message to the user.
+                        Log.w("EmailLoginActivity", "signInAnonymously:failure", task.exception)
+                        Toast.makeText(baseContext, "Authentication failed.",
+                            Toast.LENGTH_SHORT).show()
+                    }
+                }
+        }
     }
 
-    private fun findUserByEmail(email: String) {
+    private fun checkUserProviderAndSignIn(email: String, password: String) {
         UserSearchManager.findUsersByEmail(email) { result ->
             when (result) {
                 is UserSearchResult.Success -> {
                     if (result.users.isNotEmpty()) {
-                        //Navegar a HomeActivity
-                        val intent = Intent(this, HomeActivity::class.java)
-                        startActivity(intent)
-                        finish() // Cierra la EmailLoginActivity
+                        val user = result.users[0] // Tomamos el primer usuario (debería haber solo uno)
+                        if (user.providers.contains("google.com")) {
+                            // El usuario se registró con Google
+                            Toast.makeText(this, "Este usuario se registró con Google. Por favor, inicia sesión con Google.", Toast.LENGTH_LONG).show()
+                        } else {
+                            // El usuario no se registró con Google, intentamos el inicio de sesión con email y password
+                            signInWithEmailAndPassword(email, password)
+                        }
                     } else {
-                        Toast.makeText(this, "El usuario no existe", Toast.LENGTH_SHORT).show()
+                        // El usuario no existe, intentamos el inicio de sesión con email y password
+                        signInWithEmailAndPassword(email, password)
                     }
                 }
                 is UserSearchResult.Error -> {
@@ -84,5 +82,25 @@ class EmailLoginActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun signInWithEmailAndPassword(email: String, password: String) {
+        auth.signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    // Sign in success, update UI with the signed-in user's information
+                    Log.d("EmailLoginActivity", "signInWithEmail:success")
+                    val user = auth.currentUser
+                    //Navegar a HomeActivity
+                    val intent = Intent(this, HomeActivity::class.java)
+                    startActivity(intent)
+                    finish() // Cierra la EmailLoginActivity
+                } else {
+                    // If sign in fails, display a message to the user.
+                    Log.w("EmailLoginActivity", "signInWithEmail:failure", task.exception)
+                    Toast.makeText(baseContext, "Authentication failed.",
+                        Toast.LENGTH_SHORT).show()
+                }
+            }
     }
 }
