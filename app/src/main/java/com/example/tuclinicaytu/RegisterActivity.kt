@@ -65,6 +65,9 @@ class RegisterActivity : AppCompatActivity() {
                     // Sign in success, update UI with the signed-in user's information
                     Log.d("RegisterActivity", "createUserWithEmail:success")
                     val user = auth.currentUser
+                    if (user != null) {
+                        UserSearchManager.createUserInFirestore(user)
+                    }
                     // Navigate to HomeActivity
                     val intent = Intent(this, HomeActivity::class.java)
                     startActivity(intent)

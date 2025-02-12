@@ -143,6 +143,9 @@ class LoginActivity : AppCompatActivity() {
                     // If the sign-in is successful, update the user interface
                     Log.d(TAG, "signInWithCredential:success")
                     val user = auth.currentUser
+                    if (user != null) {
+                        UserSearchManager.createUserInFirestore(user)
+                    }
                     updateUI(user) // Update the user interface
                 } else {
                     // If there is an error, show a message in the log
