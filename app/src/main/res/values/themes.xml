@@ -1,19 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.TuClinicaYTu" parent="Theme.MaterialComponents.Light.NoActionBar">
+    <style name="Theme.TuClinicaYTu" parent="Theme.MaterialComponents.DayNight">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/primaryColor</item>
-        <item name="colorPrimaryVariant">@color/primaryColor</item>
+        <item name="colorPrimaryVariant">@color/teal_700</item>
         <item name="colorOnPrimary">@color/textColor</item>
         <!-- Secondary brand color. -->
         <item name="colorSecondary">@color/secondaryColor</item>
-        <item name="colorSecondaryVariant">@color/secondaryColor</item>
+        <item name="colorSecondaryVariant">@color/teal_700</item>
         <item name="colorOnSecondary">@color/textColor</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor">@color/primaryColor</item>
-
+        <!-- Customize your theme here. -->
         <item name="android:windowBackground">@color/backgroundColor</item>
-        <item name="colorError">@color/errorColor</item>
+        <item name="android:textAppearance">@style/TextAppearance.TuClinicaYTu.Body</item>
+        <item name="actionBarStyle">@style/Widget.TuClinicaYTu.ActionBar</item>
+    </style>
+    <style name="TextAppearance.TuClinicaYTu.Body" parent="TextAppearance.MaterialComponents.Body1">
+        <item name="android:textColor">@color/textColor</item>
+    </style>
+    <style name="Widget.TuClinicaYTu.ActionBar" parent="Widget.MaterialComponents.ActionBar.Primary">
+        <item name="background">@color/primaryColor</item>
+        <item name="titleTextStyle">@style/Widget.TuClinicaYTu.ActionBar.TitleText</item>
+    </style>
+    <style name="Widget.TuClinicaYTu.ActionBar.TitleText" parent="TextAppearance.MaterialComponents.Headline6">
+        <item name="android:textColor">@color/textColor</item>
+        <item name="android:textAlignment">center</item>
+        <item name="android:gravity">center</item>
     </style>
 </resources>

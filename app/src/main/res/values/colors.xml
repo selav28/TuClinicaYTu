@@ -9,7 +9,7 @@
     <color name="white">#FFFFFFFF</color>
     <color name="primaryColor">#ADD8E6</color>
     <color name="secondaryColor">#40E0D0</color>
-    <color name="backgroundColor">#FFFFFF</color>
+    <color name="backgroundColor">#FF018786</color>
     <color name="textColor">#333333</color>
     <color name="errorColor">#FF0000</color>
     <color name="successColor">#008000</color>
