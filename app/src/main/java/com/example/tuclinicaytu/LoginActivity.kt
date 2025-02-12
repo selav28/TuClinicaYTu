@@ -1,139 +1,154 @@
 package com.example.tuclinicaytu
 
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.TextView
 import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.gms.auth.api.identity.BeginSignInRequest
-import com.google.android.gms.auth.api.identity.Identity
-import com.google.android.gms.auth.api.identity.SignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.tasks.Task
 import com.google.android.material.button.MaterialButton
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 
 class LoginActivity : AppCompatActivity() {
 
-    private lateinit var signInRequest: BeginSignInRequest
-    private lateinit var oneTapClient: SignInClient
     private lateinit var googleSignInButton: MaterialButton
     private lateinit var emailSignInButton: MaterialButton
     private lateinit var anonymousSignInButton: MaterialButton
     private lateinit var goToRegisterTextView: TextView
-    private lateinit var launcher: ActivityResultLauncher<IntentSenderRequest>
+    private lateinit var auth: FirebaseAuth
+    private lateinit var googleSignInClient: GoogleSignInClient
+    private val TAG = "LoginActivity"
+    private lateinit var launcher: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        // Inicializar el BeginSignInRequest y el OneTapClient
-        createSignInRequest()
-        oneTapClient = Identity.getSignInClient(this)
+        // Initialize Firebase Auth
+        auth = Firebase.auth
 
-        // Inicializar el botón de Google
+        // Configure Google Sign In
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(getString(R.string.web_client_id))
+            .requestEmail()
+            .build()
+
+        googleSignInClient = GoogleSignIn.getClient(this, gso)
+
+        // Initialize Google Sign-In button
         googleSignInButton = findViewById(R.id.sign_in_with_google_button)
         googleSignInButton.setOnClickListener {
             signInWithGoogle()
         }
 
-        // Inicializar el botón de correo electrónico
+        // Initialize Email Sign-In button
         emailSignInButton = findViewById(R.id.sign_in_with_email_button)
         emailSignInButton.setOnClickListener {
             signInWithEmail()
         }
 
-        // Inicializar el botón anónimo
+        // Initialize Anonymous Sign-In button
         anonymousSignInButton = findViewById(R.id.sign_in_anonymously_button)
         anonymousSignInButton.setOnClickListener {
             signInAnonymously()
         }
 
-        // Inicializar el TextView para ir a RegisterActivity
+        // Initialize TextView to go to RegisterActivity
         goToRegisterTextView = findViewById(R.id.goToRegisterTextView)
         goToRegisterTextView.setOnClickListener {
             goToRegister()
         }
-
-        // Registrar el ActivityResultLauncher en onCreate()
         launcher = registerForActivityResult(
-            ActivityResultContracts.StartIntentSenderForResult()
+            ActivityResultContracts.StartActivityForResult()
         ) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                try {
-                    val credential = oneTapClient.getSignInCredentialFromIntent(result.data)
-                    val idToken = credential.googleIdToken
-                    when {
-                        idToken != null -> {
-                            // Send idToken to server for verification and sign in.
-                            Log.d("LoginActivity", "Got ID token.")
-                            //Navegar a HomeActivity
-                            val intent = Intent(this, HomeActivity::class.java)
-                            startActivity(intent)
-                        }
-
-                        else -> {
-                            // Shouldn't arrive here.
-                            Log.e("LoginActivity", "No ID token!")
-                        }
-                    }
-                } catch (e: ApiException) {
-                    Log.e("LoginActivity", "Error: ${e.message}")
-                }
+            if (result.resultCode == RESULT_OK) {
+                val task: Task<GoogleSignInAccount> = GoogleSignIn.getSignedInAccountFromIntent(result.data ?: Intent())
+                handleSignInResult(task)
             } else {
-                Log.e("LoginActivity", "Error: ${result.resultCode}")
+                Log.e(TAG, "Error: ${result.resultCode}")
             }
         }
     }
 
-    private fun createSignInRequest() {
-        signInRequest = BeginSignInRequest.builder()
-            .setGoogleIdTokenRequestOptions(
-                BeginSignInRequest.GoogleIdTokenRequestOptions.builder()
-                    .setSupported(true)
-                    // Your server's client ID, not your Android client ID.
-                    .setServerClientId(getString(R.string.web_client_id))
-                    // Only show accounts previously used to sign in.
-                    .setFilterByAuthorizedAccounts(true)
-                    .build()
-            )
-            .build()
+    override fun onStart() {
+        super.onStart()
+        // Check if user is signed in (non-null) and update UI accordingly.
+        val currentUser = auth.currentUser
+        updateUI(currentUser)
+    }
+
+    private fun updateUI(user: com.google.firebase.auth.FirebaseUser?) {
+        if (user != null) {
+            // Navigate to HomeActivity
+            val intent = Intent(this, HomeActivity::class.java)
+            startActivity(intent)
+            finish() // Close LoginActivity
+        }
     }
 
     private fun signInWithGoogle() {
-        CoroutineScope(Dispatchers.Main).launch {
-            try {
-                val result = oneTapClient.beginSignIn(signInRequest).await()
-                val intentSenderRequest = IntentSenderRequest.Builder(result.pendingIntent.intentSender).build()
-                launcher.launch(intentSenderRequest)
-            } catch (e: Exception) {
-                Log.e("LoginActivity", "Error: ${e.message}")
-            }
+        val signInIntent = googleSignInClient.signInIntent
+        launcher.launch(signInIntent)
+    }
+
+    private fun handleSignInResult(completedTask: Task<GoogleSignInAccount>) {
+        try {
+            val account = completedTask.getResult(ApiException::class.java)
+
+            // Signed in successfully, show authenticated UI.
+            Log.d(TAG, "Google sign in success")
+            firebaseAuthWithGoogle(account.idToken!!)
+        } catch (e: ApiException) {
+            // The ApiException status code indicates the detailed failure reason.
+            // Please refer to the GoogleSignInStatusCodes class reference for more information.
+            Log.w(TAG, "signInResult:failed code=" + e.statusCode)
         }
     }
 
+    private fun firebaseAuthWithGoogle(idToken: String) {
+        val credential = GoogleAuthProvider.getCredential(idToken, null)
+        auth.signInWithCredential(credential)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    // Sign in success, update UI with the signed-in user's information
+                    Log.d(TAG, "signInWithCredential:success")
+                    val user = auth.currentUser
+                    updateUI(user)
+                } else {
+                    // If sign in fails, display a message to the user.
+                    Log.w(TAG, "signInWithCredential:failure", task.exception)
+                    updateUI(null)
+                }
+            }
+    }
+
     private fun signInWithEmail() {
-        // Iniciar EmailLoginActivity
+        // Start EmailLoginActivity
         val intent = Intent(this, EmailLoginActivity::class.java)
         startActivity(intent)
     }
 
     private fun signInAnonymously() {
-        // Lógica para el inicio de sesión anónimo
-        Log.d("LoginActivity", "Inicio de sesión anónimo")
-        //Navegar a HomeActivity
+        // Logic for anonymous sign-in
+        Log.d(TAG, "Anonymous sign-in")
+        // Navigate to HomeActivity
         val intent = Intent(this, HomeActivity::class.java)
         startActivity(intent)
+        finish() // Close LoginActivity
     }
 
     private fun goToRegister() {
-        // Iniciar RegisterActivity
+        // Start RegisterActivity
         val intent = Intent(this, RegisterActivity::class.java)
         startActivity(intent)
     }

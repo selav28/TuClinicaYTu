@@ -12,4 +12,5 @@
     <string name="hint_password">Contraseña</string>
     <string name="text_iniciar_sesion">Iniciar Sesión</string>
     <string name="text_bienvenida">¡Bienvenido a TuClinicaYTu!</string>
+    <string name="text_cerrar_sesion">Cerrar Sesión</string>
 </resources>
