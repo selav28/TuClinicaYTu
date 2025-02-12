@@ -1,3 +1,15 @@
 <resources>
     <string name="app_name">TuClinicaYTu</string>
+    <string name="web_client_id">826488391315-cat0mi1l9jupit5gj4kcsp0t1jjbqh64.apps.googleusercontent.com</string>
+    <string name="login_title">Iniciar Sesión</string>
+    <string name="sign_in_with_google">Iniciar Sesión con Google</string>
+    <string name="sign_in_with_email">Iniciar Sesión con Correo Electrónico</string>
+    <string name="sign_in_anonymously">Iniciar Sesión Anónimamente</string>
+    <string name="anonymous_login_text">Puedes iniciar sesión de forma anónima para probar la aplicación</string>
+    <string name="comenzar_registro">¿No tienes cuenta? Regístrate aquí</string>
+    <string name="text_inicio_sesion_mail">Inicio de Sesión con Correo Electrónico</string>
+    <string name="hint_mail">Correo Electrónico</string>
+    <string name="hint_password">Contraseña</string>
+    <string name="text_iniciar_sesion">Iniciar Sesión</string>
+    <string name="text_bienvenida">¡Bienvenido a TuClinicaYTu!</string>
 </resources>

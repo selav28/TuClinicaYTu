@@ -1,5 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.TuClinicaYTu" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.TuClinicaYTu" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/primaryColor</item>
+        <item name="colorPrimaryVariant">@color/primaryColor</item>
+        <item name="colorOnPrimary">@color/textColor</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/secondaryColor</item>
+        <item name="colorSecondaryVariant">@color/secondaryColor</item>
+        <item name="colorOnSecondary">@color/textColor</item>
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor">@color/primaryColor</item>
+
+        <item name="android:windowBackground">@color/backgroundColor</item>
+        <item name="colorError">@color/errorColor</item>
+    </style>
 </resources>
