@@ -46,7 +46,7 @@ class LoginActivity : AppCompatActivity() {
         supportActionBar?.displayOptions = androidx.appcompat.app.ActionBar.DISPLAY_SHOW_CUSTOM
         supportActionBar?.setCustomView(R.layout.center_title_actionbar)
 
-        // Initialize Firebase Authentication
+        // Initialize Firebase Auth
         auth = Firebase.auth
 
         // Configure Google Sign In
