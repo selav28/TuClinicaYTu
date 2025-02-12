@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.TextView
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -26,6 +27,7 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var emailSignInButton: MaterialButton
     private lateinit var anonymousSignInButton: MaterialButton
     private lateinit var goToRegisterTextView: TextView
+    private lateinit var launcher: ActivityResultLauncher<IntentSenderRequest>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,24 +60,9 @@ class LoginActivity : AppCompatActivity() {
         goToRegisterTextView.setOnClickListener {
             goToRegister()
         }
-    }
 
-    private fun createSignInRequest() {
-        signInRequest = BeginSignInRequest.builder()
-            .setGoogleIdTokenRequestOptions(
-                BeginSignInRequest.GoogleIdTokenRequestOptions.builder()
-                    .setSupported(true)
-                    // Your server's client ID, not your Android client ID.
-                    .setServerClientId(getString(R.string.web_client_id))
-                    // Only show accounts previously used to sign in.
-                    .setFilterByAuthorizedAccounts(true)
-                    .build()
-            )
-            .build()
-    }
-
-    private fun signInWithGoogle() {
-        val launcher = registerForActivityResult(
+        // Registrar el ActivityResultLauncher en onCreate()
+        launcher = registerForActivityResult(
             ActivityResultContracts.StartIntentSenderForResult()
         ) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
@@ -103,6 +90,23 @@ class LoginActivity : AppCompatActivity() {
                 Log.e("LoginActivity", "Error: ${result.resultCode}")
             }
         }
+    }
+
+    private fun createSignInRequest() {
+        signInRequest = BeginSignInRequest.builder()
+            .setGoogleIdTokenRequestOptions(
+                BeginSignInRequest.GoogleIdTokenRequestOptions.builder()
+                    .setSupported(true)
+                    // Your server's client ID, not your Android client ID.
+                    .setServerClientId(getString(R.string.web_client_id))
+                    // Only show accounts previously used to sign in.
+                    .setFilterByAuthorizedAccounts(true)
+                    .build()
+            )
+            .build()
+    }
+
+    private fun signInWithGoogle() {
         CoroutineScope(Dispatchers.Main).launch {
             try {
                 val result = oneTapClient.beginSignIn(signInRequest).await()
