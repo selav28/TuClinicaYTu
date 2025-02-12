@@ -114,8 +114,10 @@ class LoginActivity : AppCompatActivity() {
 
     // Sign in with Google
     private fun signInWithGoogle() {
-        val signInIntent = googleSignInClient.signInIntent
-        launcher.launch(signInIntent) // Launch the Google Sign-In activity
+        googleSignInClient.signOut().addOnCompleteListener {
+            val signInIntent = googleSignInClient.signInIntent
+            launcher.launch(signInIntent) // Launch the Google Sign-In activity
+        }
     }
 
     // Handle the result of the Google Sign-In
